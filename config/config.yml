@@ -7,7 +7,7 @@ logging:
   level: "INFO"
   log_dir: "logs/"
   wandb:
-    enabled: true
+    enabled: false
     project: "hybrid-movie-recsys"
     entity: "first-try"
     tags: ["kaggle", "hybrid", "qwen"]
