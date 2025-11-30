@@ -67,7 +67,7 @@ def main():
             continue
             
         try:
-            recs = recsys.recommend(user_id, N=k)
+            recs = recsys.recommend(user_id, N=k, user_item_matrix=train_matrix)
             ids = [x[0] for x in recs]
             
             # Precision

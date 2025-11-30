@@ -1,4 +1,5 @@
 import numpy as np
+import scipy.sparse as sparse
 import yaml
 from typing import List, Tuple
 from src.models.cf.svd import SVDRecommender
@@ -37,13 +38,17 @@ class HybridRecommender:
         self.is_fitted = True
         print("Hybrid Recommender fitted.")
 
-    def recommend(self, user_id: int, N: int = 10) -> List[Tuple[int, float]]:
+    def recommend(self, user_id: int, N: int = 10, user_item_matrix: sparse.csr_matrix = None) -> List[Tuple[int, float]]:
         if not self.is_fitted:
             raise RuntimeError("Model not fitted. Call fit() first.")
             
+        # Use passed matrix or internal one
+        if user_item_matrix is None:
+            user_item_matrix = self.dataset.get_interaction_matrix()
+
         # 1. Get CF candidates
         # We ask for more candidates to re-rank
-        cf_ids, cf_scores = self.cf_model.recommend(user_id, self.dataset.get_interaction_matrix(), N=N*2)
+        cf_ids, cf_scores = self.cf_model.recommend(user_id, user_item_matrix, N=N*2)
         
         # Normalize CF scores (min-max or just max)
         if len(cf_scores) > 0:
@@ -57,13 +62,10 @@ class HybridRecommender:
         # Strategy: Get user's last liked item or top rated item.
         # For simplicity, let's take the item with highest rating from user history.
         
-        user_idx = self.dataset.user_map.get(user_id) # Wait, user_id in recommend is usually external ID?
-        # In ALSRecommender, we assumed internal index.
-        # Let's assume user_id passed here is INTERNAL index for now, or we need to map.
-        # Let's assume INTERNAL index to be consistent with ALS.
+        # user_id passed here is assumed to be internal index
         
         # Get user history
-        user_row = self.dataset.get_interaction_matrix()[user_id]
+        user_row = user_item_matrix[user_id]
         user_items = user_row.indices
         user_ratings = user_row.data
         

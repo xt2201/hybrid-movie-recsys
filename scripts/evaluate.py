@@ -56,7 +56,7 @@ def evaluate_model(model, train_matrix, test_matrix, k=10, n_users=100):
                 ids, scores = model.recommend(user_id, train_matrix, N=k)
             else:
                 # Hybrid or others
-                recs = model.recommend(user_id, N=k)
+                recs = model.recommend(user_id, N=k, user_item_matrix=train_matrix)
                 ids = [x[0] for x in recs]
         except Exception as e:
             print(f"Error recommending for user {user_id}: {e}")
