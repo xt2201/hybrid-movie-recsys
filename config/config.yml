@@ -37,20 +37,24 @@ data:
     movie_features: "data/processed/movie_features.parquet"
 
   split:
-    method: "time"
+    method: "leave_k_out"
     train_ratio: 0.8
     val_ratio: 0.1
-    test_ratio: 0.1
+    test_ratio: 0.2
     min_ratings_per_user: 5
     min_ratings_per_item: 5
+  
+  # Threshold for considering a rating as relevant/positive
+  relevance_threshold: 3.5
 
 model:
   cf:
     type: "als"
-    factors: 64
+    factors: 128
     regularization: 0.01
-    iterations: 20
-    use_gpu: true
+    iterations: 15
+    alpha: 40  # Confidence weight for implicit feedback
+    use_gpu: false
 
   content:
     type: "tfidf"
