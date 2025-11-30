@@ -1,4 +1,11 @@
 import yaml
+import yaml
+import sys
+import os
+
+# Add project root to sys.path
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from src.llm.qwen_client import QwenClient
 from src.llm.query_parser import QueryParser
 from src.llm.reranker import Reranker

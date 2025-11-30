@@ -1,6 +1,12 @@
 import yaml
 import wandb
 import numpy as np
+import sys
+import os
+
+# Add project root to sys.path
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from src.recommender.hybrid import HybridRecommender
 from src.data.dataset import MovieDataset
 from scripts.evaluate import evaluate_model

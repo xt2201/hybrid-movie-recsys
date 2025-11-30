@@ -1,6 +1,12 @@
 import numpy as np
 import yaml
 from tqdm import tqdm
+import sys
+import os
+
+# Add project root to sys.path
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from src.data.dataset import MovieDataset
 from src.models.cf.svd import SVDRecommender
 from src.recommender.hybrid import HybridRecommender
