@@ -86,5 +86,41 @@ def main():
         })
         wandb.finish()
 
+    # Save and Upload to HF
+    print("Saving models...")
+    output_dir = config["project"]["output_dir"]
+    recsys.cf_model.save(f"{output_dir}/cf_model.pkl")
+    recsys.content_model.save(f"{output_dir}/content_model.pkl")
+    
+    # Upload to HF
+    try:
+        from huggingface_hub import HfApi
+        from dotenv import load_dotenv
+        import os
+        
+        load_dotenv()
+        hf_token = os.getenv("HF_TOKEN")
+        repo_id = "xt2201/hybrid-movie-recsys"
+        
+        if hf_token:
+            print(f"Uploading to Hugging Face Hub: {repo_id}...")
+            api = HfApi(token=hf_token)
+            
+            # Create repo if not exists (private by default if not specified, but let's assume it exists or public)
+            api.create_repo(repo_id=repo_id, exist_ok=True)
+            
+            api.upload_folder(
+                folder_path=output_dir,
+                repo_id=repo_id,
+                path_in_repo="checkpoints",
+                ignore_patterns=["*.parquet", "*.csv"] # Don't upload data if accidentally in output
+            )
+            print("Upload complete.")
+        else:
+            print("HF_TOKEN not found. Skipping upload.")
+            
+    except Exception as e:
+        print(f"Error uploading to HF: {e}")
+
 if __name__ == "__main__":
     main()

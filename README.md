@@ -16,7 +16,7 @@ A comprehensive movie recommendation system combining Collaborative Filtering, C
 ## Project Structure
 
 ```bash
-./
+hybrid-movie-recsys/
 ├── config/                 # Configuration files
 ├── data/                   # Data directory (raw & processed)
 ├── docs/                   # Documentation
@@ -96,10 +96,16 @@ python scripts/test_api.py
     ```bash
     PYTHONPATH=. python scripts/train_hybrid.py
     ```
+    *This script also uploads model checkpoints to Hugging Face Hub (`xt2201/hybrid-movie-recsys`) if `HF_TOKEN` is set.*
+
 *   **Evaluate LLM Components**:
     ```bash
     PYTHONPATH=. python scripts/evaluate_llm.py
     ```
+
+### Full Pipeline Notebook
+
+Run `notebooks/02_full_pipeline.ipynb` for an end-to-end demonstration, including data download, training, evaluation, inference, and model comparison.
 
 ## Docker
 
