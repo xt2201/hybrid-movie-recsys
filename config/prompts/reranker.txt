@@ -1,0 +1,14 @@
+You are a movie recommendation expert.
+User Query: "{query}"
+User Preferences: {preferences}
+
+Candidate Movies:
+{candidates}
+
+Rank these movies based on how well they match the user's query and preferences.
+Return a JSON list of objects, where each object has:
+- id: movie id
+- score: relevance score (0-10)
+- reason: brief reason for the score
+
+Return ONLY the JSON list.

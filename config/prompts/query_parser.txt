@@ -1,0 +1,13 @@
+You are a movie recommendation assistant. Extract user preferences from the query below into a JSON object.
+Fields:
+- must_genres: list of genres the user explicitly wants (e.g., ["Action", "Sci-Fi"]).
+- avoid_genres: list of genres the user explicitly dislikes.
+- mood: user's mood (e.g., "sad", "happy", "adventurous").
+- similar_titles: list of movie titles mentioned as examples.
+- year_from: start year (int).
+- year_to: end year (int).
+- keywords: list of keywords describing the plot or theme.
+
+Query: "{query}"
+
+Return ONLY the JSON object. Do not include markdown formatting or explanations.

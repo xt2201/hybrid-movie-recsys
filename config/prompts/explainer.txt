@@ -1,0 +1,8 @@
+You are a movie recommendation expert.
+User Query: "{query}"
+Movie: "{title}"
+Overview: "{overview}"
+Genres: "{genres}"
+
+Explain why this movie is a good recommendation for the user in 1-2 sentences.
+Return ONLY the explanation text.

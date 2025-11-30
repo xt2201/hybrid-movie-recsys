@@ -1,0 +1,114 @@
+project:
+  name: "hybrid-movie-recsys"
+  seed: 42
+  output_dir: "outputs/"
+
+logging:
+  level: "INFO"
+  log_dir: "logs/"
+  wandb:
+    enabled: true
+    project: "hybrid-movie-recsys"
+    entity: "first-try"
+    tags: ["kaggle", "hybrid", "qwen"]
+
+data:
+  kaggle:
+    raw_dir: "data/raw"
+    movielens:
+      dataset: "grouplens/movielens-20m-dataset"
+      subdir: "movielens"
+      ratings_file: "rating.csv"
+      movies_file: "movie.csv"
+    movies_metadata:
+      dataset: "rounakbanik/the-movies-dataset"
+      subdir: "movies_metadata"
+      files:
+        metadata: "movies_metadata.csv"
+        credits: "credits.csv"
+        keywords: "keywords.csv"
+        links: "links.csv"
+
+  processed:
+    base_dir: "data/processed"
+    ratings: "data/processed/ratings.parquet"
+    movies: "data/processed/movies.parquet"
+    movies_metadata: "data/processed/movies_metadata.parquet"
+    movie_features: "data/processed/movie_features.parquet"
+
+  split:
+    method: "time"
+    train_ratio: 0.8
+    val_ratio: 0.1
+    test_ratio: 0.1
+    min_ratings_per_user: 5
+    min_ratings_per_item: 5
+
+model:
+  cf:
+    type: "als"
+    factors: 64
+    regularization: 0.01
+    iterations: 20
+    use_gpu: true
+
+  content:
+    type: "tfidf"
+    max_features: 50000
+    use_overview: true
+    use_genres: true
+    use_keywords: true
+    use_cast_crew: true
+
+  hybrid:
+    alpha_cf: 0.7
+    alpha_content: 0.3
+    use_llm_rerank: true
+
+llm:
+  provider: "huggingface"
+  model_name: "Qwen/Qwen2.5-1.5B-Instruct"
+  max_new_tokens: 128
+  temperature: 0.3
+  top_p: 0.9
+  device: "cuda:0"
+
+  query_parser:
+    prompt_template: "config/prompts/query_parser.txt"
+  reranker:
+    prompt_template: "config/prompts/reranker.txt"
+    max_candidates: 50
+  explainer:
+    prompt_template: "config/prompts/explainer.txt"
+    max_explanations: 10
+
+training:
+  batch_size: 1024
+  num_epochs: 10
+  lr: 0.001
+  optimizer: "adam"
+  num_workers: 4
+  checkpoint_dir: "outputs/checkpoints"
+  resume_from: null
+
+evaluation:
+  metrics:
+    - "ndcg@10"
+    - "recall@10"
+    - "map@10"
+  num_negative_samples: 100
+  eval_users_sample: 5000
+
+api:
+  host: "0.0.0.0"
+  port: 8000
+  num_workers: 2
+  enable_cors: true
+
+experiment:
+  name: "baseline_hybrid_qwen_kaggle"
+  notes: "Hybrid recsys with Kaggle MovieLens + TMDB and Qwen re-ranking"
+  tags:
+    - "baseline"
+    - "kaggle"
+    - "qwen"
