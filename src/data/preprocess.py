@@ -4,6 +4,9 @@ import yaml
 import ast
 import numpy as np
 from src.data.kaggle_loader import KaggleLoader
+from src.utils.logger import get_logger
+
+logger = get_logger(__name__)
 
 CONFIG_PATH = "config/config.yml"
 
@@ -17,7 +20,7 @@ class Preprocessor:
         os.makedirs(self.processed_dir, exist_ok=True)
 
     def process_movielens(self):
-        print("Processing MovieLens data...")
+        logger.info("Processing MovieLens data...")
         ratings = self.loader.load_movielens_ratings()
         movies = self.loader.load_movielens_movies()
         
@@ -33,17 +36,17 @@ class Preprocessor:
         
         ratings = ratings[ratings['userId'].isin(valid_users) & ratings['movieId'].isin(valid_items)]
         
-        print(f"Filtered ratings shape: {ratings.shape}")
+        logger.info(f"Filtered ratings shape: {ratings.shape}")
         
         # Save ratings
         ratings_path = self.config["data"]["processed"]["ratings"]
         ratings.to_parquet(ratings_path, index=False)
-        print(f"Saved ratings to {ratings_path}")
+        logger.info(f"Saved ratings to {ratings_path}")
         
         return ratings, movies
 
     def process_metadata(self, ml_movies):
-        print("Processing Metadata...")
+        logger.info("Processing Metadata...")
         metadata_dict = self.loader.load_movies_metadata()
         
         metadata = metadata_dict["metadata"]
@@ -95,7 +98,7 @@ class Preprocessor:
         # Save movies
         movies_path = self.config["data"]["processed"]["movies"]
         final_movies.to_parquet(movies_path, index=False)
-        print(f"Saved movies to {movies_path}")
+        logger.info(f"Saved movies to {movies_path}")
         
         return final_movies
 

@@ -5,6 +5,9 @@ from typing import List, Tuple
 from src.models.cf.svd import SVDRecommender
 from src.models.content.tfidf import ContentRecommender
 from src.data.dataset import MovieDataset
+from src.utils.logger import get_logger
+
+logger = get_logger(__name__)
 
 CONFIG_PATH = "config/config.yml"
 
@@ -24,7 +27,7 @@ class HybridRecommender:
         self.is_fitted = False
 
     def fit(self):
-        print("Fitting Hybrid Recommender...")
+        logger.info("Fitting Hybrid Recommender...")
         self.dataset.load_data()
         
         # Fit CF
@@ -36,7 +39,7 @@ class HybridRecommender:
         self.content_model.fit(content_df)
         
         self.is_fitted = True
-        print("Hybrid Recommender fitted.")
+        logger.info("Hybrid Recommender fitted.")
 
     def recommend(self, user_id: int, N: int = 10, user_item_matrix: sparse.csr_matrix = None) -> List[Tuple[int, float]]:
         if not self.is_fitted:
@@ -106,4 +109,4 @@ if __name__ == "__main__":
     
     user_id = 0
     recs = recsys.recommend(user_id)
-    print(f"Hybrid recommendations for user {user_id}: {recs}")
+    logger.info(f"Hybrid recommendations for user {user_id}: {recs}")

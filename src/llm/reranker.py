@@ -2,6 +2,9 @@ import json
 import yaml
 from typing import List, Dict
 from src.llm.qwen_client import QwenClient
+from src.utils.logger import get_logger
+
+logger = get_logger(__name__)
 
 CONFIG_PATH = "config/config.yml"
 
@@ -46,7 +49,7 @@ class Reranker:
             ranked_list.sort(key=lambda x: x.get('score', 0), reverse=True)
             return ranked_list
         except json.JSONDecodeError:
-            print(f"Failed to parse JSON: {response}")
+            logger.info(f"Failed to parse JSON: {response}")
             return []
 
 if __name__ == "__main__":
@@ -59,4 +62,4 @@ if __name__ == "__main__":
         {"id": 3, "title": "Guardians of the Galaxy", "genres": "Action|Sci-Fi|Comedy"}
     ]
     result = reranker.rerank(query, prefs, candidates)
-    print(f"Reranked: {result}")
+    logger.info(f"Reranked: {result}")

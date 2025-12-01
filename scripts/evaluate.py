@@ -10,6 +10,9 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from src.data.dataset import MovieDataset
 from src.models.cf.svd import SVDRecommender
 from src.recommender.hybrid import HybridRecommender
+from src.utils.logger import get_logger
+
+logger = get_logger(__name__)
 
 CONFIG_PATH = "config/config.yml"
 
@@ -58,7 +61,7 @@ def evaluate_model(model, train_matrix, test_matrix, k=10, n_users=500):
     Evaluate model using test matrix where entries represent relevant items.
     The test matrix should only contain positive interactions (ratings >= threshold).
     """
-    print(f"Evaluating model on up to {n_users} users...")
+    logger.info(f"Evaluating model on up to {n_users} users...")
     
     # Get users who have relevant items in test set
     test_users = np.unique(test_matrix.nonzero()[0])
@@ -68,7 +71,7 @@ def evaluate_model(model, train_matrix, test_matrix, k=10, n_users=500):
         np.random.seed(42)
         test_users = np.random.choice(test_users, n_users, replace=False)
     
-    print(f"  Found {len(test_users)} test users with relevant items")
+    logger.info(f"  Found {len(test_users)} test users with relevant items")
     
     precisions = []
     recalls = []
@@ -105,9 +108,9 @@ def evaluate_model(model, train_matrix, test_matrix, k=10, n_users=500):
         f'NDCG@{k}': np.mean(ndcgs)
     }
     
-    print(f"\nResults ({len(precisions)} valid users):")
+    logger.info(f"\nResults ({len(precisions)} valid users):")
     for name, value in metrics.items():
-        print(f"  {name}: {value:.4f}")
+        logger.info(f"  {name}: {value:.4f}")
     
     return metrics
 
@@ -118,16 +121,16 @@ def main():
     ds.load_data()
     train_matrix, test_matrix = ds.get_train_test_split(test_ratio=0.2)
     
-    print("\n" + "="*50)
-    print("Evaluating SVD/ALS Model...")
-    print("="*50)
+    logger.info("="*50)
+    logger.info("Evaluating SVD/ALS Model...")
+    logger.info("="*50)
     svd_model = SVDRecommender()
     svd_model.fit(train_matrix)
     evaluate_model(svd_model, train_matrix, test_matrix, k=10, n_users=500)
     
-    print("\n" + "="*50)
-    print("Evaluating Hybrid Model...")
-    print("="*50)
+    logger.info("="*50)
+    logger.info("Evaluating Hybrid Model...")
+    logger.info("="*50)
     
     hybrid_model = HybridRecommender()
     hybrid_model.dataset = ds  # Reuse loaded dataset

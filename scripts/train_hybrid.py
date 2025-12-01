@@ -10,6 +10,9 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from src.recommender.hybrid import HybridRecommender
 from src.data.dataset import MovieDataset
 from scripts.evaluate import evaluate_model
+from src.utils.logger import get_logger
+
+logger = get_logger(__name__)
 
 CONFIG_PATH = "config/config.yml"
 
@@ -26,7 +29,7 @@ def main():
             config=config
         )
         
-    print("Initializing Hybrid Recommender...")
+    logger.info("Initializing Hybrid Recommender...")
     recsys = HybridRecommender(CONFIG_PATH)
     
     # Load data
@@ -34,17 +37,17 @@ def main():
     train_matrix, test_matrix = ds.get_train_test_split(test_ratio=config["data"]["split"]["test_ratio"])
     
     # We need to manually fit components to use the split
-    print("Training CF Model (SVD)...")
+    logger.info("Training CF Model (SVD)...")
     recsys.cf_model.fit(train_matrix)
     
-    print("Training Content Model...")
+    logger.info("Training Content Model...")
     content_df = ds.get_content_features()
     recsys.content_model.fit(content_df)
     
     recsys.is_fitted = True
     
     # Evaluate
-    print("Evaluating...")
+    logger.info("Evaluating...")
     # We use a custom evaluation function that logs to W&B
     k = 10
     n_users = config["evaluation"]["eval_users_sample"]
@@ -61,6 +64,7 @@ def main():
     precisions = []
     recalls = []
     
+    logger.info(f"Loaded {recsys.dataset.n_users} users and {recsys.dataset.n_items} items.")
     for user_id in test_users:
         relevant_items = test_matrix[user_id].indices
         if len(relevant_items) == 0:
@@ -82,8 +86,8 @@ def main():
     p_k = np.mean(precisions)
     r_k = np.mean(recalls)
     
-    print(f"Precision@{k}: {p_k:.4f}")
-    print(f"Recall@{k}: {r_k:.4f}")
+    logger.info(f"Precision@10: {p_k:.4f}")
+    logger.info(f"Recall@10: {r_k:.4f}")
     
     if config["logging"]["wandb"]["enabled"]:
         wandb.log({
@@ -93,7 +97,7 @@ def main():
         wandb.finish()
 
     # Save and Upload to HF
-    print("Saving models...")
+    logger.info("Saving models...")
     output_dir = config["project"]["output_dir"]
     recsys.cf_model.save(f"{output_dir}/cf_model.pkl")
     recsys.content_model.save(f"{output_dir}/content_model.pkl")
@@ -109,7 +113,7 @@ def main():
         repo_id = "xt2201/hybrid-movie-recsys"
         
         if hf_token:
-            print(f"Uploading to Hugging Face Hub: {repo_id}...")
+            logger.info(f"Uploading to Hugging Face Hub: {repo_id}...")
             api = HfApi(token=hf_token)
             
             # Create repo if not exists (private by default if not specified, but let's assume it exists or public)
@@ -121,12 +125,12 @@ def main():
                 path_in_repo="checkpoints",
                 ignore_patterns=["*.parquet", "*.csv"] # Don't upload data if accidentally in output
             )
-            print("Upload complete.")
+            logger.info("Upload complete.")
         else:
-            print("HF_TOKEN not found. Skipping upload.")
+            logger.info("HF_TOKEN not found. Skipping upload.")
             
     except Exception as e:
-        print(f"Error uploading to HF: {e}")
+        logger.info(f"Error uploading to HF: {e}")
 
 if __name__ == "__main__":
     main()

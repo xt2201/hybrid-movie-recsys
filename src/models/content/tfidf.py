@@ -5,6 +5,9 @@ from sklearn.metrics.pairwise import cosine_similarity
 import yaml
 import pickle
 import os
+from src.utils.logger import get_logger
+
+logger = get_logger(__name__)
 
 CONFIG_PATH = "config/config.yml"
 
@@ -21,11 +24,11 @@ class ContentRecommender:
         self.item_ids = None # List of item IDs corresponding to rows
 
     def fit(self, content_df: pd.DataFrame):
-        print("Training Content-based model (TF-IDF)...")
+        logger.info("Training Content-based model (TF-IDF)...")
         # content_df should have 'text_content' column and index as item_idx (or we keep track)
         self.item_ids = content_df.index.tolist()
         self.tfidf_matrix = self.vectorizer.fit_transform(content_df['text_content'])
-        print(f"TF-IDF matrix shape: {self.tfidf_matrix.shape}")
+        logger.info(f"TF-IDF matrix shape: {self.tfidf_matrix.shape}")
 
     def recommend(self, item_idx: int, N: int = 10):
         # Recommend items similar to item_idx
@@ -35,7 +38,7 @@ class ContentRecommender:
         try:
             row_idx = self.item_ids.index(item_idx)
         except ValueError:
-            print(f"Item {item_idx} not found in content model.")
+            logger.info(f"Item {item_idx} not found in content model.")
             return [], []
             
         # Compute cosine similarity with all other items
@@ -62,7 +65,7 @@ class ContentRecommender:
                 'tfidf_matrix': self.tfidf_matrix,
                 'item_ids': self.item_ids
             }, f)
-        print(f"Model saved to {path}")
+        logger.info(f"Model saved to {path}")
 
     def load(self, path: str):
         with open(path, 'rb') as f:
@@ -70,7 +73,7 @@ class ContentRecommender:
             self.vectorizer = data['vectorizer']
             self.tfidf_matrix = data['tfidf_matrix']
             self.item_ids = data['item_ids']
-        print(f"Model loaded from {path}")
+        logger.info(f"Model loaded from {path}")
 
 if __name__ == "__main__":
     from src.data.dataset import MovieDataset
@@ -83,4 +86,4 @@ if __name__ == "__main__":
     # Test recommendation
     item_idx = 0
     ids, scores = model.recommend(item_idx)
-    print(f"Recommendations similar to item {item_idx}: {ids}")
+    logger.info(f"Recommendations similar to item {item_idx}: {ids}")

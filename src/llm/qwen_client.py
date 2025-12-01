@@ -3,6 +3,9 @@ from transformers import AutoModelForCausalLM, AutoTokenizer
 import yaml
 from typing import List, Dict, Optional
 from dotenv import load_dotenv
+from src.utils.logger import get_logger
+
+logger = get_logger(__name__)
 
 load_dotenv()
 
@@ -20,7 +23,7 @@ class QwenClient:
         self.temperature = self.llm_config["temperature"]
         self.top_p = self.llm_config["top_p"]
         
-        print(f"Loading LLM: {self.model_name} on {self.device}...")
+        logger.info(f"Loading LLM: {self.model_name} on {self.device}...")
         self.tokenizer = AutoTokenizer.from_pretrained(self.model_name, trust_remote_code=True)
         self.model = AutoModelForCausalLM.from_pretrained(
             self.model_name,
@@ -29,7 +32,7 @@ class QwenClient:
             torch_dtype=torch.float16
         )
         self.model.eval()
-        print("LLM loaded.")
+        logger.info("LLM loaded.")
 
     def generate(self, prompt: str, system_prompt: str = "You are a helpful assistant.") -> str:
         messages = [
@@ -64,4 +67,4 @@ class QwenClient:
 if __name__ == "__main__":
     client = QwenClient()
     response = client.generate("Hello, who are you?")
-    print(f"Response: {response}")
+    logger.info(f"Response: {response}")

@@ -2,6 +2,9 @@ import json
 import yaml
 import os
 from src.llm.qwen_client import QwenClient
+from src.utils.logger import get_logger
+
+logger = get_logger(__name__)
 
 CONFIG_PATH = "config/config.yml"
 
@@ -33,11 +36,11 @@ class QueryParser:
         try:
             return json.loads(response)
         except json.JSONDecodeError:
-            print(f"Failed to parse JSON: {response}")
+            logger.info(f"Failed to parse JSON: {response}")
             return {}
 
 if __name__ == "__main__":
     parser = QueryParser()
     query = "I want to watch a sad sci-fi movie like Interstellar from after 2010."
     result = parser.parse(query)
-    print(f"Parsed query: {result}")
+    logger.info(f"Parsed query: {result}")

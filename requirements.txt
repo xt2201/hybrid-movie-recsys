@@ -14,3 +14,4 @@ scipy>=1.10.0
 tqdm>=4.65.0
 pyarrow>=12.0.0
 huggingface_hub==0.36.0
+rich>=13.0.0

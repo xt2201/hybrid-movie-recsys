@@ -1,5 +1,8 @@
 import yaml
 from src.llm.qwen_client import QwenClient
+from src.utils.logger import get_logger
+
+logger = get_logger(__name__)
 
 CONFIG_PATH = "config/config.yml"
 
@@ -37,4 +40,4 @@ if __name__ == "__main__":
         "genres": "Adventure|Drama|Sci-Fi"
     }
     explanation = explainer.explain(query, movie)
-    print(f"Explanation: {explanation}")
+    logger.info(f"Explanation: {explanation}")

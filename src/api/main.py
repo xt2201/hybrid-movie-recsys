@@ -10,6 +10,9 @@ from src.llm.query_parser import QueryParser
 from src.llm.reranker import Reranker
 from src.llm.explainer import Explainer
 from src.llm.qwen_client import QwenClient
+from src.utils.logger import get_logger
+
+logger = get_logger(__name__)
 
 CONFIG_PATH = "config/config.yml"
 
@@ -25,7 +28,7 @@ movie_data_map = {}
 async def lifespan(app: FastAPI):
     global recsys, qwen_client, query_parser, reranker, explainer, movie_data_map
     
-    print("Loading models...")
+    logger.info("Loading models...")
     # Load Recommender
     recsys = HybridRecommender(CONFIG_PATH)
     # For demo, we fit on startup. In prod, load from checkpoint.
@@ -59,9 +62,9 @@ async def lifespan(app: FastAPI):
         reranker = Reranker(qwen_client, CONFIG_PATH)
         explainer = Explainer(qwen_client, CONFIG_PATH)
         
-    print("Models loaded.")
+    logger.info("Models loaded.")
     yield
-    print("Shutting down...")
+    logger.info("Shutting down...")
 
 app = FastAPI(title="Hybrid Movie Recommender", lifespan=lifespan)
 

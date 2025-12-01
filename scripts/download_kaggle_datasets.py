@@ -2,6 +2,9 @@ import os
 import yaml
 import argparse
 from kaggle.api.kaggle_api_extended import KaggleApi
+from src.utils.logger import get_logger
+
+logger = get_logger(__name__)
 
 CONFIG_PATH = "config/config.yml"
 
@@ -28,12 +31,12 @@ def main():
     out_dir = os.path.join(raw_dir, subdir)
     os.makedirs(out_dir, exist_ok=True)
     
-    print(f"Downloading {dataset} to {out_dir}...")
+    logger.info(f"Downloading {dataset} to {out_dir}...")
     try:
         api.dataset_download_files(dataset, path=out_dir, unzip=True)
-        print(f"Successfully downloaded {dataset}")
+        logger.info(f"Successfully downloaded {dataset}")
     except Exception as e:
-        print(f"Error downloading {dataset}: {e}")
+        logger.info(f"Error downloading {dataset}: {e}")
 
     # Download Movies Metadata
     meta_cfg = kaggle_cfg["movies_metadata"]
@@ -42,12 +45,12 @@ def main():
     out_dir = os.path.join(raw_dir, subdir)
     os.makedirs(out_dir, exist_ok=True)
 
-    print(f"Downloading {dataset} to {out_dir}...")
+    logger.info(f"Downloading {dataset} to {out_dir}...")
     try:
         api.dataset_download_files(dataset, path=out_dir, unzip=True)
-        print(f"Successfully downloaded {dataset}")
+        logger.info(f"Successfully downloaded {dataset}")
     except Exception as e:
-        print(f"Error downloading {dataset}: {e}")
+        logger.info(f"Error downloading {dataset}: {e}")
 
 if __name__ == "__main__":
     main()

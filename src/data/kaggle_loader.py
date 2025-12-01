@@ -2,6 +2,9 @@ import os
 import pandas as pd
 import yaml
 from typing import Dict, Any
+from src.utils.logger import get_logger
+
+logger = get_logger(__name__)
 
 class KaggleLoader:
     def __init__(self, config_path: str = "config/config.yml"):
@@ -14,13 +17,13 @@ class KaggleLoader:
     def load_movielens_ratings(self) -> pd.DataFrame:
         ml_cfg = self.kaggle_cfg["movielens"]
         path = os.path.join(self.raw_dir, ml_cfg["subdir"], ml_cfg["ratings_file"])
-        print(f"Loading ratings from {path}...")
+        logger.info(f"Loading ratings from {path}...")
         return pd.read_csv(path)
 
     def load_movielens_movies(self) -> pd.DataFrame:
         ml_cfg = self.kaggle_cfg["movielens"]
         path = os.path.join(self.raw_dir, ml_cfg["subdir"], ml_cfg["movies_file"])
-        print(f"Loading movies from {path}...")
+        logger.info(f"Loading movies from {path}...")
         return pd.read_csv(path)
 
     def load_movies_metadata(self) -> Dict[str, pd.DataFrame]:
@@ -31,7 +34,7 @@ class KaggleLoader:
         data = {}
         for key, filename in files.items():
             path = os.path.join(self.raw_dir, subdir, filename)
-            print(f"Loading {key} from {path}...")
+            logger.info(f"Loading {key} from {path}...")
             # Some files might have bad lines or mixed types, handle with care
             try:
                 if key == "metadata":
@@ -40,18 +43,18 @@ class KaggleLoader:
                 else:
                     data[key] = pd.read_csv(path)
             except Exception as e:
-                print(f"Error loading {path}: {e}")
+                logger.info(f"Error loading {path}: {e}")
         
         return data
 
 if __name__ == "__main__":
     loader = KaggleLoader()
     ratings = loader.load_movielens_ratings()
-    print(f"Ratings shape: {ratings.shape}")
+    logger.info(f"Ratings shape: {ratings.shape}")
     
     movies = loader.load_movielens_movies()
-    print(f"Movies shape: {movies.shape}")
+    logger.info(f"Movies shape: {movies.shape}")
     
     metadata = loader.load_movies_metadata()
     for k, v in metadata.items():
-        print(f"{k} shape: {v.shape}")
+        logger.info(f"{k} shape: {v.shape}")

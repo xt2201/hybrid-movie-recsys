@@ -3,6 +3,9 @@ import scipy.sparse as sparse
 import numpy as np
 import yaml
 from typing import Tuple, Dict
+from src.utils.logger import get_logger
+
+logger = get_logger(__name__)
 
 CONFIG_PATH = "config/config.yml"
 
@@ -29,7 +32,7 @@ class MovieDataset:
         self.reverse_item_map = {}
 
     def load_data(self):
-        print("Loading processed data...")
+        logger.info("Loading processed data...")
         self.ratings = pd.read_parquet(self.ratings_path)
         self.movies = pd.read_parquet(self.movies_path)
         
@@ -44,7 +47,7 @@ class MovieDataset:
         self.reverse_user_map = {i: u for u, i in self.user_map.items()}
         self.reverse_item_map = {i: u for u, i in self.item_map.items()}
         
-        print(f"Loaded {len(unique_users)} users and {len(unique_items)} items.")
+        logger.info(f"Loaded {len(unique_users)} users and {len(unique_items)} items.")
 
     def get_interaction_matrix(self) -> sparse.csr_matrix:
         if self.ratings is None:
@@ -72,7 +75,7 @@ class MovieDataset:
         
         # Filter only positive ratings (>= threshold)
         positive_ratings = self.ratings[self.ratings['rating'] >= self.relevance_threshold].copy()
-        print(f"Positive ratings (>= {self.relevance_threshold}): {len(positive_ratings)} / {len(self.ratings)} ({len(positive_ratings)/len(self.ratings)*100:.1f}%)")
+        logger.info(f"Positive ratings (>= {self.relevance_threshold}): {len(positive_ratings)} / {len(self.ratings)} ({len(positive_ratings)/len(self.ratings)*100:.1f}%)")
         
         # Sort by timestamp for temporal split
         positive_ratings = positive_ratings.sort_values(['userId', 'timestamp'])
@@ -116,7 +119,7 @@ class MovieDataset:
         train_matrix = sparse.csr_matrix((train_data, (train_rows, train_cols)), shape=shape)
         test_matrix = sparse.csr_matrix((test_data, (test_rows, test_cols)), shape=shape)
         
-        print(f"Train interactions: {train_matrix.nnz}, Test interactions: {test_matrix.nnz}")
+        logger.info(f"Train interactions: {train_matrix.nnz}, Test interactions: {test_matrix.nnz}")
         
         return train_matrix, test_matrix
 
@@ -150,6 +153,6 @@ if __name__ == "__main__":
     ds = MovieDataset()
     ds.load_data()
     mat = ds.get_interaction_matrix()
-    print(f"Interaction matrix shape: {mat.shape}")
+    logger.info(f"Interaction matrix shape: {mat.shape}")
     content = ds.get_content_features()
-    print(f"Content features shape: {content.shape}")
+    logger.info(f"Content features shape: {content.shape}")

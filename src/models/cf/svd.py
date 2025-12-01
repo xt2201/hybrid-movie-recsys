@@ -3,6 +3,9 @@ import scipy.sparse as sparse
 import yaml
 import pickle
 import os
+from src.utils.logger import get_logger
+
+logger = get_logger(__name__)
 
 CONFIG_PATH = "config/config.yml"
 
@@ -29,7 +32,7 @@ class SVDRecommender:
         Train using Weighted Alternating Least Squares (ALS) for implicit feedback.
         Reference: "Collaborative Filtering for Implicit Feedback Datasets" (Hu et al., 2008)
         """
-        print("Training SVD/ALS model...")
+        logger.info("Training SVD/ALS model...")
         
         # Convert to implicit feedback: C = 1 + alpha * R (confidence)
         # P = 1 if R > 0 else 0 (preference)
@@ -57,9 +60,9 @@ class SVDRecommender:
             self._als_step(Cui_csc.T.tocsr(), self.item_factors, self.user_factors, reg_I)
             
             if (iteration + 1) % 5 == 0:
-                print(f"  Iteration {iteration + 1}/{self.iterations}")
+                logger.info(f"  Iteration {iteration + 1}/{self.iterations}")
         
-        print("Training complete.")
+        logger.info("Training complete.")
 
     def _als_step(self, Cui, X, Y, reg_I):
         """One ALS step: update X given Y fixed."""
@@ -119,7 +122,7 @@ class SVDRecommender:
                 'item_factors': self.item_factors,
                 'factors': self.factors
             }, f)
-        print(f"Model saved to {path}")
+        logger.info(f"Model saved to {path}")
 
     def load(self, path: str):
         with open(path, 'rb') as f:
@@ -127,4 +130,4 @@ class SVDRecommender:
             self.user_factors = data['user_factors']
             self.item_factors = data['item_factors']
             self.factors = data['factors']
-        print(f"Model loaded from {path}")
+        logger.info(f"Model loaded from {path}")
